@@ -42,4 +42,27 @@ For this walkthrough we will use the [Vision AI Dev Kit](https://azure.github.io
 - Once you have completed the [intial setup](https://azure.github.io/Vision-AI-DevKit-Pages/docs/quick_start/), follow the instructions [here](https://azure.github.io/Vision-AI-DevKit-Pages/docs/Tutorial-HOL_Using_the_VisionSample/#deploy-your-custom-model-to-your-device) to deploy your custom vision model to your device.
 
 
+#### Testing
+
+![Test 1 - Q](https://raw.githubusercontent.com/jomit/sign-langauge-recognition/master/images/vtest1.jpg)
+
+![Test 2 - W](https://raw.githubusercontent.com/jomit/sign-langauge-recognition/master/images/vtest2.jpg)
+
+![Test 3 - Y](https://raw.githubusercontent.com/jomit/sign-langauge-recognition/master/images/vtest3.jpg)
+
+![Test 4 - C](https://raw.githubusercontent.com/jomit/sign-langauge-recognition/master/images/vtest4.jpg)
+
+![Test 5 - B](https://raw.githubusercontent.com/jomit/sign-langauge-recognition/master/images/vtest5.jpg)
+
+#### Troubleshooting
+
+##### ADB Helpful Commands
+
+- `adb devices`
+- `adb shell cat /sys/class/power_supply/battery/capacity`
+- `adb shell cat /etc/version`
+- `adb shell iotedge logs AIVisionDevKitGetStartedModule`
+- `adb shell ifconfig wlan0`
+- `adb shell docker logs -f edgeAgent`
+- `adb shell docker restart AIVisionDevKitGetStartedModule`
 
