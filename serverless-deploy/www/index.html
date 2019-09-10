@@ -1,0 +1,120 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sign Language Recognition</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <style>
+    body {
+      min-height: 75rem;
+      padding-top: 100px;
+    }
+
+    .em,
+    .emoji {
+      font-size: 60px;
+    }
+
+    .slide-fade-enter-active,
+    .slide-fade-leave-active {
+      transition: all .5s ease;
+    }
+
+    .slide-fade-enter,
+    .slide-fade-leave-to {
+      /* transform: translateX(60px); */
+      height: 0px;
+      overflow-y: hidden;
+      opacity: 0;
+    }
+
+    .jumbotron img {
+      max-height: 200px;
+    }
+
+    .jumbotron {
+      padding: 2rem;
+    }
+
+    .navbar-brand {
+      font-size: 2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container">
+        <span class="navbar-brand">Sign Language Recognition</span>
+        <span class="navbar-brand">{{ processingRate }} images/sec</span>
+      </div>
+    </nav>
+
+    <div class="container">
+      <transition-group name="slide-fade" tag="div">
+        <div class="jumbotron" v-for="result in results" v-bind:key="result.id">
+          <div class="row">
+            <div class="col">
+              <img :src="result.url" style="max-height: 200px">
+            </div>
+            <div class="col">
+              <span v-if="result.predictedTagName === 'A'" class="emoji">A</span>
+              <span v-if="result.predictedTagName === 'B'" class="emoji">B</span>
+              <span v-if="result.predictedTagName === 'C'" class="emoji">C</span>
+              <span v-if="result.predictedTagName === 'D'" class="emoji">D</span>
+            </div>
+          </div>
+        </div>
+      </transition-group>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@3.0.0-preview8.19405.7/dist/browser/signalr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.5.12/Rx.min.js" integrity="sha256-cwLuyVzYZFWhnQzXHj8mufd8tyxMZo1Pso0QNA5cqlI=" crossorigin="anonymous"></script>
+
+  <script>
+    const app = new Vue({
+      el: '#app',
+      data: {
+        results: [],
+        processingRate: 0
+      },
+      mounted: function () {
+        let count = 0
+        const imagesSubject = new Rx.Subject()
+        const timeWindow = 6000
+        imagesSubject.bufferTime(timeWindow, 1000).subscribe(function(results) {
+          this.processingRate = (results.length / timeWindow * 1000).toFixed(2)
+        }.bind(this))
+
+        const connection = new signalR.HubConnectionBuilder()
+          .withUrl('<FUNCTION-APP-URL>/api')
+          .withAutomaticReconnect()
+          .build()
+        connection.on('newResult', function (result) {
+          result.id = count++
+          this.results.unshift(result)
+          imagesSubject.next(result)
+          if (this.results.length > 50) {
+            this.results.length = 50
+          }
+        }.bind(this))
+        this.connection = connection
+
+        return connection.start()
+      },
+      beforeDestroy: function () {
+        if (this.connection) {
+          this.connection.stop()
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
